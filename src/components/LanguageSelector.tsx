@@ -1,7 +1,6 @@
-import React, { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { useAppContext } from "../contexts/AppContext";
 import { useLanguages } from "../hooks/useLanguages";
-import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { LanguageType } from "../types";
 
 // Inspired by https://blog.logrocket.com/creating-custom-select-dropdown-css/
@@ -9,102 +8,47 @@ import { LanguageType } from "../types";
 const LanguageSelector = () => {
   const { language, setLanguage } = useAppContext();
   const { fetchedLanguages, loading, error } = useLanguages();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = React.useState(false);
 
-  const handleSelect = (selected: LanguageType) => {
-    setLanguage(selected);
-    setIsOpen(false);
-  };
+  const setLang = (lang:LanguageType|undefined = undefined)=>{
+    const l = lang || fetchedLanguages[0];
+    setLanguage(l);
+    localStorage.setItem("lang", l.lang.toLowerCase());
+  }
 
-  const { focusedIndex, handleKeyDown, resetFocus, focusFirst } =
-    useKeyboardNavigation({
-      items: fetchedLanguages,
-      isOpen,
-      onSelect: handleSelect,
-      onClose: () => setIsOpen(false),
-    });
-
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(document.activeElement)
-      ) {
-        setIsOpen(false);
+  useEffect(()=>{
+    if(!loading && !error){
+      const lastLang = localStorage.getItem("lang");
+      const x = fetchedLanguages.find(x=>x.lang.toLowerCase() === lastLang);
+      if(!x){
+        setLang(x);
+      }else{
+        setLang();
       }
-    }, 0);
-  };
-
-  const toggleDropdown = () => {
-    setIsOpen((prev) => {
-      if (!prev) setTimeout(focusFirst, 0);
-      return !prev;
-    });
-  };
-
-  useEffect(() => {
-    if (!isOpen) resetFocus();
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen && focusedIndex >= 0) {
-      const element = document.querySelector(
-        `.selector__item:nth-child(${focusedIndex + 1})`
-      ) as HTMLElement;
-      element?.focus();
     }
-  }, [isOpen, focusedIndex]);
+  },[fetchedLanguages, loading, error]);
+
 
   if (loading) return <p>Loading languages...</p>;
   if (error) return <p>Error fetching languages: {error}</p>;
 
   return (
-    <div
-      className={`selector ${isOpen ? "selector--open" : ""}`}
-      ref={dropdownRef}
-      onBlur={handleBlur}
-    >
-      <button
-        className="selector__button"
-        aria-label="select button"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        onClick={toggleDropdown}
-      >
-        <div className="selector__value">
-          <img src={language.icon} alt="" />
-          <span>{language.lang || "Select a language"}</span>
-        </div>
-        <span className="selector__arrow" />
-      </button>
-      {isOpen && (
-        <ul
-          className="selector__dropdown"
-          role="listbox"
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-        >
-          {fetchedLanguages.map((lang, index) => (
-            <li
-              key={lang.lang}
-              role="option"
-              tabIndex={-1}
-              onClick={() => handleSelect(lang)}
-              className={`selector__item ${
-                language.lang === lang.lang ? "selected" : ""
-              } ${focusedIndex === index ? "focused" : ""}`}
-              aria-selected={language.lang === lang.lang}
-            >
-              <label>
-                <img src={lang.icon} alt="" />
+    <ul role="list" className="categories">
+      {fetchedLanguages.map((lang, idx) => (
+        <li key={idx} className="category">
+          <button
+            className={`category__btn ${
+              lang === language ? "category__btn--active" : ""
+            }`}
+            onClick={() => setLanguage(lang)}
+          >
+             { <label className="icon-text">
+                <img className="lang__icon" src={lang.icon} alt="" />
                 <span>{lang.lang}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+              </label>}
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 };
 

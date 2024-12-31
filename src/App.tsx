@@ -15,13 +15,13 @@ const App = () => {
       <Header />
       <Banner />
       <main className="main">
-        <Sidebar />
-        <section className="flow">
-          <h2 className="section-title">
-            {category ? category : "Select a category"}
-          </h2>
+        <Sidebar />  
+        <section className="section">
+        <h2 className="section-title">{category ? "Snippets for - "+category : "Select a category"}</h2>
+        <div className="section-body">
           <SnippetList />
-        </section>
+        </div>
+      </section>
       </main>
       <Footer />
     </div>

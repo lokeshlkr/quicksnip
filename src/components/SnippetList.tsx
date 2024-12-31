@@ -5,6 +5,7 @@ import { useSnippets } from "../hooks/useSnippets";
 
 import SnippetModal from "./SnippetModal";
 import { LeftAngleArrowIcon } from "./Icons";
+import Snippet from "./Snippet";
 
 const SnippetList = () => {
   const { language, snippet, setSnippet } = useAppContext();
@@ -33,17 +34,11 @@ const SnippetList = () => {
       <ul role="list" className="snippets">
         {fetchedSnippets.map((snippet, idx) => (
           <li key={idx}>
-            <button
-              className="snippet | flow"
-              data-flow-space="sm"
-              onClick={() => handleOpenModal(snippet)}
-            >
-              <div className="snippet__preview">
-                <img src={language.icon} alt={language.lang} />
-              </div>
-
-              <h3 className="snippet__title">{snippet.title}</h3>
-            </button>
+            <Snippet 
+              snippet={snippet} 
+              language={language} 
+              onClick={() => handleOpenModal(snippet)}>
+            </Snippet>
           </li>
         ))}
       </ul>

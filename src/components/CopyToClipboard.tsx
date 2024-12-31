@@ -9,7 +9,8 @@ type Props = {
 const CopyToClipboard = ({ text, ...props }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const copyText = () => {
+  const copyText = (event:React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     navigator.clipboard
       .writeText(text)
       .then(() => {
@@ -20,7 +21,7 @@ const CopyToClipboard = ({ text, ...props }: Props) => {
   };
 
   return (
-    <Button isIcon={true} onClick={copyText} {...props}>
+    <Button isIcon={true} onClick={($event)=>copyText($event)} {...props}>
       {isCopied ? "Copied!" : <CopyIcon />}
     </Button>
   );

@@ -5,10 +5,19 @@ import CopyToClipboard from "./CopyToClipboard";
 type Props = {
   language: string;
   code: string[];
+  customStyle?:React.CSSProperties;
 };
 
-const CodePreview = ({ language = "markdown", code }: Props) => {
+const CodePreview = ({ language = "markdown", code, customStyle }: Props) => {
   const codeString = code.join("\n");
+  let styles = {
+    margin: "0", 
+    maxHeight: "20rem"
+  } as React.CSSProperties;
+  
+  if (customStyle){
+    styles = {...styles, ...customStyle}
+  }
 
   return (
     <div className="code-preview">
@@ -17,7 +26,7 @@ const CodePreview = ({ language = "markdown", code }: Props) => {
         language={language}
         style={oneDark}
         wrapLines={true}
-        customStyle={{ margin: "0", maxHeight: "20rem" }}
+        customStyle={styles}
       >
         {codeString}
       </SyntaxHighlighter>
